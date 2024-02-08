@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 
 type DropDown = {
   title: string;
-  list: string[] | string[];
+  list: string[] | string[] | string[];
   callBack: (title: string) => void;
 };
 
