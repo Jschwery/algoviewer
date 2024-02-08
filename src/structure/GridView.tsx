@@ -6,8 +6,6 @@ interface GridProps {
   colCount: number;
 }
 const GridView = (gridProps: GridProps) => {
-  const rows = Array.from({ length: gridProps.rowCount });
-  const cols = Array.from({ length: gridProps.colCount });
   const [selectedCells, setSelectedCells] = useState<{
     [key: string]: boolean;
   }>({});

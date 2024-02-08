@@ -11,10 +11,10 @@ function Container() {
 
   return (
     <div className="w-full h-screen flex flex-col bg-slate-400">
-      <div className="w-full h-[20%]">
+      <div className="w-full">
         <Options onCalculate={handleCalculate} />
       </div>
-      <div className="w-full h-[80%]">
+      <div className="w-full grow p-2">
         <GridView rowCount={rowCount} colCount={colCount} />
       </div>
     </div>
