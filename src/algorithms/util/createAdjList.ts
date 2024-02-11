@@ -22,3 +22,4 @@ function CreateAdjList(graph: number[][]): {[key: string]: Coordinate[]} {
 }
 
 export default CreateAdjList;
+
