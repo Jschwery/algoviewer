@@ -1,41 +1,85 @@
-import React from 'react'
-import PathFindingAlgorithm from './pathFinding'
+import React from "react";
+import PathFindingAlgorithm from "./pathFinding";
+import CreateAdjList, { CoordinateMap } from "./util/createAdjList";
+import MinHeap from "./util/minHeap";
 
-class Dijkstra implements PathFindingAlgorithm{
+class Dijkstra implements PathFindingAlgorithm {
+  distArray: number[][];
+  adjList!: CoordinateMap;
+  prev: { [key: string]: [number, number] | null };
 
-    distArrat: number[];
-    constructor(grid: number[][]){
-        this.distArrat = Array(grid.length).fill(Infinity);
-    }
+  constructor(grid: number[][]) {
+    this.distArray = Array.from({ length: grid.length }, () =>
+      Array(grid[0].length).fill(Infinity)
+    );
+    this.prev = {};
+    this.initializeGrid(grid);
+  }
 
+  calculateDistance(a: [number, number], b: [number, number]): number {
+    let xIndex = Math.abs(a[0] - b[0]);
+    let yIndex = Math.abs(a[1] - b[1]);
 
-    async initializeGrid(grid: number[][]): Promise<void> {
-        for(let i = 0; i < grid.length; i++){
-            for(let j = 0; j < grid[0].length; j++){
-            
+    return yIndex + xIndex;
+  }
 
-            }
+  async initializeGrid(grid: number[][]): Promise<void> {
+    this.adjList = CreateAdjList(grid);
+  }
+
+  async findPath(
+    start: [number, number],
+    end: [number, number],
+    onProgress?: ((currentGrid: number[][]) => void) | undefined
+  ): Promise<[number, number][]> {
+    this.distArray[start[0]][start[1]] = 0;
+    this.prev[`${start[0]}-${start[1]}`] = null;
+
+    let minHeap = new MinHeap();
+    minHeap.insert({ coord: start, distance: 0 });
+
+    while (minHeap.peak()) {
+      let currentNode = minHeap.extractMin();
+      let [currentX, currentY] = currentNode!.coord;
+      let currentDist = currentNode!.distance;
+
+      if (currentX === end[0] && currentY === end[1]) break;
+
+      let neighbors = this.adjList[`${currentX}-${currentY}`];
+      for (const neighbor of neighbors) {
+        let [nextX, nextY, distToNeighbor] = neighbor;
+        let newDist = currentDist + distToNeighbor;
+
+        if (newDist < this.distArray[nextX][nextY]) {
+          this.distArray[nextX][nextY] = newDist;
+          this.prev[`${nextX}-${nextY}`] = [currentX, currentY];
+          minHeap.insert({ coord: [nextX, nextY], distance: newDist });
+
+          if (onProgress) {
+            onProgress([...this.distArray]);
+          }
         }
-
-
+      }
     }
 
+    return this.reconstructPath(start, end);
+  }
 
-
-    async findPath(start: [number, number], end: [number, number], onProgress?: ((currentGrid: number[][]) => void) | undefined): Promise<[number, number][]> {
-        //
-
-
-
+  reconstructPath(
+    start: [number, number],
+    end: [number, number]
+  ): [number, number][] {
+    let path: [number, number][] = [];
+    let current: [number, number] | null = end;
+    while (current && !(current[0] === start[0] && current[1] === start[1])) {
+      path.unshift(current);
+      current = this.prev[`${current[0]}-${current[1]}`];
     }
-    calculateDistance(a: [number, number], b: [number, number]): number {
-        throw new Error('Method not implemented.')
+    if (current) {
+      path.unshift(current);
     }
-    findNeighbors(position: [number, number]): [number, number][] {
-        throw new Error('Method not implemented.')
-    }
-   
+    return path;
+  }
 }
 
-
-export default Dijkstra
+export default Dijkstra;

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import DropDown from "./Dropdown";
 
 interface OptionsProps {
@@ -6,11 +6,14 @@ interface OptionsProps {
 }
 
 const Options: React.FC<OptionsProps> = ({ onCalculate }) => {
-  const [dimension1, setDimension1] = useState("");
-  const [dimension2, setDimension2] = useState("");
+  const [dimension1, setDimension1] = useState("20");
+  const [dimension2, setDimension2] = useState("20");
   const [algo, setAlgo] = useState("");
 
-  // Ensure each list item has a unique ID
+  useEffect(() => {
+    console.log("algo: " + algo);
+  }, [algo]);
+
   const algorithmsList = [
     { id: "1", name: "Dijkstra" },
     {
