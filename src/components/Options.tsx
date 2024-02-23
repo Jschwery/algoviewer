@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import DropDown from "./Dropdown";
+import Dijkstra from "../algorithms/dijkstra";
 
 interface OptionsProps {
-  onCalculate: (num: number, num2: number) => void;
+  onCalculate: (start: number, end: number) => void;
+  setAlgo: (algo: string) => void;
 }
 
 const Options: React.FC<OptionsProps> = ({ onCalculate }) => {
@@ -11,7 +13,7 @@ const Options: React.FC<OptionsProps> = ({ onCalculate }) => {
   const [algo, setAlgo] = useState("");
 
   useEffect(() => {
-    console.log("algo: " + algo);
+    setAlgo(algo);
   }, [algo]);
 
   const algorithmsList = [
@@ -66,6 +68,14 @@ const Options: React.FC<OptionsProps> = ({ onCalculate }) => {
               <DropDown title={"Speed"} list={speedList} callBack={setAlgo} />
             </div>
           </div>
+          {/* <button
+                onClick={() =>
+                  
+                }
+                className="rounded-sm bg-purple-500 hover:bg-purple-400 h-8 px-2 cursor-pointer"
+              >
+                Search
+              </button> */}
           <div className="w-full z-10 bg-emerald-300">
             <h5>Dimensions</h5>
             <div className="flex gap-2 items-center">

@@ -28,11 +28,6 @@ function DropDown(props: DropDown) {
     setSelected([!selected, name]);
   };
 
-  useEffect(() => {
-    console.log(selected);
-    console.log("selected name: " + selectedName);
-  }, [selected, selectedName]);
-
   return (
     <>
       <div

@@ -4,9 +4,9 @@ import CreateAdjList, { CoordinateMap } from "./util/createAdjList";
 import MinHeap from "./util/minHeap";
 
 class Dijkstra implements PathFindingAlgorithm {
-  distArray: number[][];
-  adjList!: CoordinateMap;
-  prev: { [key: string]: [number, number] | null };
+  private distArray: number[][];
+  private adjList!: CoordinateMap;
+  private prev: { [key: string]: [number, number] | null };
 
   constructor(grid: number[][]) {
     this.distArray = Array.from({ length: grid.length }, () =>
@@ -16,13 +16,13 @@ class Dijkstra implements PathFindingAlgorithm {
     this.initializeGrid(grid);
   }
 
-  calculateDistance(a: [number, number], b: [number, number]): number {
+   calculateDistance(a: [number, number], b: [number, number]): number {
     let xIndex = Math.abs(a[0] - b[0]);
     let yIndex = Math.abs(a[1] - b[1]);
 
     return yIndex + xIndex;
   }
-
+  
   async initializeGrid(grid: number[][]): Promise<void> {
     this.adjList = CreateAdjList(grid);
   }
@@ -65,7 +65,7 @@ class Dijkstra implements PathFindingAlgorithm {
     return this.reconstructPath(start, end);
   }
 
-  reconstructPath(
+  private reconstructPath(
     start: [number, number],
     end: [number, number]
   ): [number, number][] {

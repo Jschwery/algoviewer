@@ -10,6 +10,8 @@
 }
 
 .grid-cell {
-  background-color: lightgray;
-  border: 1px solid black;
+  @apply bg-slate-100 hover:bg-slate-300 flex items-center justify-center cursor-pointer;
+}
+.selected {
+  @apply bg-cyan-400 hover:bg-cyan-300 hover:scale-105 cursor-pointer;
 }
