@@ -1,55 +1,59 @@
 import React, { useEffect, useState } from "react";
 import Options from "../components/Options";
-import GridView, { parseCoordinate } from "./GridView";
+import GridView, { DraggingCellInfo, parseCoordinate } from "./GridView";
+import { algorithmsList } from "../algorithms/util/algoList";
 
 function Container() {
   const [[rowCount, colCount], setRowColCount] = useState([0, 0]);
-  const [coordinates, setCoordinates] = useState([
-    [0, 0],
-    [0, 0],
-  ]);
-  const [walls, setWalls] = useState([]);
-  const [algo, setAlgo] = useState("");
 
-  const setStartEnd = ({
-    start,
-    end,
-  }: {
-    start: [number, number];
-    end: [number, number];
-  }) => {
-    setCoordinates([start, end]);
-  };
+  const [walls, setWalls] = useState<{
+    [key: string]: DraggingCellInfo;
+  }>({});
+
+  const [algoId, setAlgoId] = useState("");
+  const algoName = algorithmsList[Number(algoId) - 1]?.name ?? "";
+
+  useEffect(() => {
+    console.log("Selected Algorithm: " + algoName);
+  }, [algoId]);
 
   const handleCalculate = (newRowCount: number, newColCount: number) => {
     setRowColCount([newRowCount, newColCount]);
   };
 
-  const handleWallChange = (walls: string) => {
-    let coords = parseCoordinate(walls);
-  };
-
-  const handleStartPointChange = (startPoint: string) => {
-    let coords = parseCoordinate(startPoint);
-    setCoordinates((prev) => [coords, prev[1]]);
-  };
-
-  const handleEndPointChange = (endPoint: string) => {
-    let coords = parseCoordinate(endPoint);
-    setCoordinates((prev) => [prev[0], coords]);
+  const handleWallChange = (wall: string, selected: boolean) => {
+    setWalls((prev) => {
+      const cellInfo = prev[wall];
+      if (cellInfo) {
+        return {
+          ...prev,
+          [wall]: {
+            ...cellInfo,
+            selected: selected,
+            id: wall,
+            type: selected ? "wall" : "",
+          },
+        };
+      } else {
+        return {
+          ...prev,
+          [wall]: {
+            id: wall,
+            type: "wall",
+            selected: true,
+          },
+        };
+      }
+    });
   };
 
   return (
     <div className="w-full h-screen flex flex-col bg-slate-400">
       <div className="w-full">
-        <Options onCalculate={handleCalculate} setAlgo={setAlgo} />
+        <Options onCalculate={handleCalculate} algoCallback={setAlgoId} />
       </div>
       <div className="w-full grow p-2 bg-slate-400">
-        <GridView
-          setStartEnd={setStartEnd}
-          rowCount={rowCount}
-          colCount={colCount}
-        />
+        <GridView rowCount={rowCount} colCount={colCount} />
       </div>
     </div>
   );

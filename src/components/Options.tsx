@@ -1,51 +1,21 @@
 import React, { useEffect, useState } from "react";
 import DropDown from "./Dropdown";
 import Dijkstra from "../algorithms/dijkstra";
+import { algorithmsList } from "../algorithms/util/algoList";
 
 interface OptionsProps {
   onCalculate: (start: number, end: number) => void;
-  setAlgo: (algo: string) => void;
+  algoCallback: (algo: string) => void;
 }
 
-const Options: React.FC<OptionsProps> = ({ onCalculate }) => {
+const Options: React.FC<OptionsProps> = ({ onCalculate, algoCallback }) => {
   const [dimension1, setDimension1] = useState("20");
   const [dimension2, setDimension2] = useState("20");
   const [algo, setAlgo] = useState("");
 
   useEffect(() => {
-    setAlgo(algo);
+    algoCallback(algo);
   }, [algo]);
-
-  const algorithmsList = [
-    { id: "1", name: "Dijkstra" },
-    {
-      id: "2",
-      name: "A*",
-      children: [
-        { id: "2-1", name: "Variant 1" },
-        { id: "2-2", name: "Variant 2" },
-      ],
-    },
-    { id: "3", name: "BFS" },
-  ];
-
-  const mazesList = [
-    {
-      id: "4",
-      name: "Recursive Division",
-      children: [
-        { id: "4-1", name: "Vertical Skew" },
-        { id: "4-2", name: "Horizontal Skew" },
-      ],
-    },
-    { id: "5", name: "Random Maze" },
-  ];
-
-  const speedList = [
-    { id: "6", name: "Fast" },
-    { id: "7", name: "Medium" },
-    { id: "8", name: "Slow" },
-  ];
 
   return (
     <div className="w-full h-full gap-2 flex-col sm:flex-row flex p-2 bg-slate-400">
@@ -60,12 +30,20 @@ const Options: React.FC<OptionsProps> = ({ onCalculate }) => {
               />
             </div>
             <div className="relative flex w-full  items-center justify-start">
-              <DropDown title={"Mazes"} list={mazesList} callBack={setAlgo} />
+              <DropDown
+                title={"Mazes"}
+                list={algorithmsList}
+                callBack={setAlgo}
+              />
             </div>
           </div>
           <div className="w-full bg-emerald-300">
             <div className="relative flex w-full  items-center justify-start">
-              <DropDown title={"Speed"} list={speedList} callBack={setAlgo} />
+              <DropDown
+                title={"Speed"}
+                list={algorithmsList}
+                callBack={setAlgo}
+              />
             </div>
           </div>
           {/* <button

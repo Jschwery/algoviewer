@@ -4,13 +4,9 @@ import GridCell from "../components/GridCell";
 interface GridProps {
   rowCount: number;
   colCount: number;
-  setStartEnd: (points: {
-    start: [number, number];
-    end: [number, number];
-  }) => void;
 }
 
-interface DraggingCellInfo {
+export interface DraggingCellInfo {
   id: string;
   type: "start" | "end" | "wall" | "";
   selected?: boolean;
@@ -25,7 +21,7 @@ export const parseCoordinate = (coords: string) => {
   return [Number(parts[0]), Number(parts[1])];
 };
 
-const GridView: React.FC<GridProps> = ({ rowCount, colCount, setStartEnd }) => {
+const GridView: React.FC<GridProps> = ({ rowCount, colCount }) => {
   const [selectedCells, setSelectedCells] = useState<{
     [key: string]: DraggingCellInfo;
   }>({});
@@ -43,21 +39,12 @@ const GridView: React.FC<GridProps> = ({ rowCount, colCount, setStartEnd }) => {
   ]);
 
   useEffect(() => {
-    setStartEnd({ start, end });
-  }, [start, end]);
-
-  useEffect(() => {
     setEnd([
       rowCount >= 10 ? Math.floor(rowCount / 2) : rowCount - 1,
       colCount >= 10 ? Math.floor(colCount / 2) : colCount - 1,
     ]);
   }, [rowCount, colCount]);
   const coordsEqual = (a: any[], b: any[]) => a[0] === b[0] && a[1] === b[1];
-
-  useEffect(() => {
-    console.log("the selected cells");
-    console.log(selectedCells);
-  }, [selectedCells]);
 
   const handleCellClick = (id: string) => {
     setSelectedCells((prev) => {
@@ -68,6 +55,7 @@ const GridView: React.FC<GridProps> = ({ rowCount, colCount, setStartEnd }) => {
       }
 
       const cellInfo = prev[id];
+
       if (cellInfo) {
         return {
           ...prev,
@@ -83,22 +71,22 @@ const GridView: React.FC<GridProps> = ({ rowCount, colCount, setStartEnd }) => {
     });
   };
 
-  const traverseGrid = (id: string) => {
-    setSelectedCells((prev) => {
-      const cellCoords = parseCoordinate(id);
+  // const traverseGrid = (id: string) => {
+  //   setSelectedCells((prev) => {
+  //     const cellCoords = parseCoordinate(id);
 
-      if (coordsEqual(cellCoords, start) || coordsEqual(cellCoords, end)) {
-        return prev;
-      }
+  //     if (coordsEqual(cellCoords, start) || coordsEqual(cellCoords, end)) {
+  //       return prev;
+  //     }
 
-      const cellInfo = prev[id];
-      if (cellInfo) {
-        return { ...prev, [id]: { ...cellInfo, selected: !cellInfo.selected } };
-      } else {
-        return { ...prev, [id]: { id, type: "", selected: true } };
-      }
-    });
-  };
+  //     const cellInfo = prev[id];
+  //     if (cellInfo) {
+  //       return { ...prev, [id]: { ...cellInfo, selected: !cellInfo.selected } };
+  //     } else {
+  //       return { ...prev, [id]: { id, type: "", selected: true } };
+  //     }
+  //   });
+  // };
 
   const handleMouseDown = (id: string, cellType: "start" | "end" | "") => {
     setIsDragging(true);
