@@ -4,6 +4,7 @@ import GridCell from "../components/GridCell";
 interface GridProps {
   rowCount: number;
   colCount: number;
+  pathFind: (start: number, end: number, walls: string[]) => void;
 }
 
 export interface DraggingCellInfo {
@@ -11,6 +12,16 @@ export interface DraggingCellInfo {
   type: "start" | "end" | "wall" | "";
   selected?: boolean;
 }
+
+/*
+TODO:
+Implement a callback that happens when 
+start button is clicked
+
+the buttons onclick calls the callback function 
+which passes the start & end, and all of the walls
+
+*/
 
 export const parseCoordinate = (coords: string) => {
   const parts = coords.split("-");
@@ -183,16 +194,18 @@ const GridView: React.FC<GridProps> = ({ rowCount, colCount }) => {
   }
 
   return (
-    <div
-      className="grid-container"
-      style={{
-        display: "grid",
-        gridTemplateRows: `repeat(${rowCount}, 1fr)`,
-        gridTemplateColumns: `repeat(${colCount}, 1fr)`,
-      }}
-    >
-      {cells}
-    </div>
+    <>
+      <div
+        className="grid-container"
+        style={{
+          display: "grid",
+          gridTemplateRows: `repeat(${rowCount}, 1fr)`,
+          gridTemplateColumns: `repeat(${colCount}, 1fr)`,
+        }}
+      >
+        {cells}
+      </div>
+    </>
   );
 };
 

@@ -17,6 +17,8 @@ function Container() {
     console.log("Selected Algorithm: " + algoName);
   }, [algoId]);
 
+  const pathFind = (start: number, end: number, walls: string[]) => {};
+
   const handleCalculate = (newRowCount: number, newColCount: number) => {
     setRowColCount([newRowCount, newColCount]);
   };
@@ -49,11 +51,14 @@ function Container() {
 
   return (
     <div className="w-full h-screen flex flex-col bg-slate-400">
+      <div className="flex items-center justify-center">
+        <h2 className="text-3xl p-3">Path Finder</h2>
+      </div>
       <div className="w-full">
         <Options onCalculate={handleCalculate} algoCallback={setAlgoId} />
       </div>
       <div className="w-full grow p-2 bg-slate-400">
-        <GridView rowCount={rowCount} colCount={colCount} />
+        <GridView rowCount={rowCount} colCount={colCount} pathFind={pathFind} />
       </div>
     </div>
   );
