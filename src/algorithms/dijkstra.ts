@@ -9,22 +9,23 @@ class Dijkstra implements PathFindingAlgorithm {
   private prev: { [key: string]: [number, number] | null };
 
   constructor(grid: number[][]) {
-    this.distArray = Array.from({ length: grid.length }, () =>
-      Array(grid[0].length).fill(Infinity)
-    );
+    this.distArray = [];
     this.prev = {};
     this.initializeGrid(grid);
   }
 
-   calculateDistance(a: [number, number], b: [number, number]): number {
+  calculateDistance(a: [number, number], b: [number, number]): number {
     let xIndex = Math.abs(a[0] - b[0]);
     let yIndex = Math.abs(a[1] - b[1]);
 
     return yIndex + xIndex;
   }
-  
+
   async initializeGrid(grid: number[][]): Promise<void> {
-    this.adjList = CreateAdjList(grid);
+    this.distArray = Array.from({ length: grid.length }, () =>
+      Array(grid[0].length).fill(Infinity)
+    );
+    this.prev = {};
   }
 
   async findPath(

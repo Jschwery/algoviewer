@@ -1,9 +1,12 @@
 import React from "react";
+import { parseCoordinate } from "../../structure/GridView";
 
 export type Coordinate = [number, number, number];
 export type CoordinateMap = { [key: string]: Coordinate[] };
 
-function CreateAdjList(graph: number[][]): { [key: string]: Coordinate[] } {
+export function CreateAdjList(graph: number[][]): {
+  [key: string]: Coordinate[];
+} {
   const adjList: CoordinateMap = {};
   let directions = [
     [0, 1],

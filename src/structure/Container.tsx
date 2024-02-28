@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Options from "../components/Options";
 import GridView, { DraggingCellInfo, parseCoordinate } from "./GridView";
 import { algorithmsList } from "../algorithms/util/algoList";
+import Dijkstra from "../algorithms/dijkstra";
 
 function Container() {
   const [[rowCount, colCount], setRowColCount] = useState([0, 0]);
@@ -12,41 +13,44 @@ function Container() {
 
   const [algoId, setAlgoId] = useState("");
   const algoName = algorithmsList[Number(algoId) - 1]?.name ?? "";
+  const [grid, setGrid] = useState<number[][]>();
+  const dijkstraRef = useRef<Dijkstra | null>(null);
 
   useEffect(() => {
     console.log("Selected Algorithm: " + algoName);
   }, [algoId]);
 
-  const pathFind = (start: number, end: number, walls: string[]) => {};
+  useEffect(() => {
+    if (grid) {
+      if (!dijkstraRef.current) {
+        dijkstraRef.current = new Dijkstra(grid);
+      } else {
+        dijkstraRef.current.initializeGrid(grid);
+      }
+    }
+  }, [grid]);
+
+  useEffect(() => {
+    let grid = Array.from({ length: rowCount }, () => Array(colCount).fill(1));
+
+    Object.keys(walls).forEach((wallKey) => {
+      const [x, y] = wallKey.split("-").map(Number);
+      if (x >= 0 && x < rowCount && y >= 0 && y < colCount) {
+        grid[x][y] = Infinity;
+      }
+    });
+
+    setGrid([...grid]);
+  }, [rowCount, colCount, walls]);
+
+  const pathFind = (
+    start: [number, number],
+    end: [number, number],
+    walls: string[]
+  ) => {};
 
   const handleCalculate = (newRowCount: number, newColCount: number) => {
     setRowColCount([newRowCount, newColCount]);
-  };
-
-  const handleWallChange = (wall: string, selected: boolean) => {
-    setWalls((prev) => {
-      const cellInfo = prev[wall];
-      if (cellInfo) {
-        return {
-          ...prev,
-          [wall]: {
-            ...cellInfo,
-            selected: selected,
-            id: wall,
-            type: selected ? "wall" : "",
-          },
-        };
-      } else {
-        return {
-          ...prev,
-          [wall]: {
-            id: wall,
-            type: "wall",
-            selected: true,
-          },
-        };
-      }
-    });
   };
 
   return (

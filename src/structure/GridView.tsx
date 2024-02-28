@@ -4,24 +4,18 @@ import GridCell from "../components/GridCell";
 interface GridProps {
   rowCount: number;
   colCount: number;
-  pathFind: (start: number, end: number, walls: string[]) => void;
+  pathFind: (
+    start: [number, number],
+    end: [number, number],
+    walls: string[]
+  ) => void;
 }
 
 export interface DraggingCellInfo {
   id: string;
   type: "start" | "end" | "wall" | "";
-  selected?: boolean;
+  selected: boolean;
 }
-
-/*
-TODO:
-Implement a callback that happens when 
-start button is clicked
-
-the buttons onclick calls the callback function 
-which passes the start & end, and all of the walls
-
-*/
 
 export const parseCoordinate = (coords: string) => {
   const parts = coords.split("-");
@@ -32,7 +26,7 @@ export const parseCoordinate = (coords: string) => {
   return [Number(parts[0]), Number(parts[1])];
 };
 
-const GridView: React.FC<GridProps> = ({ rowCount, colCount }) => {
+const GridView: React.FC<GridProps> = ({ rowCount, colCount, pathFind }) => {
   const [selectedCells, setSelectedCells] = useState<{
     [key: string]: DraggingCellInfo;
   }>({});
@@ -44,10 +38,26 @@ const GridView: React.FC<GridProps> = ({ rowCount, colCount }) => {
     "start" | "end" | "wall" | ""
   >("");
   const [start, setStart] = useState<[number, number]>([0, 0]);
+  const [cellCords, setCellCords] = useState<string[]>([]);
   const [end, setEnd] = useState<[number, number]>([
     rowCount / 2 - 1,
     colCount / 2 - 1,
   ]);
+
+  const convertSelectedCells = (selected: {
+    [key: string]: DraggingCellInfo;
+  }) => {
+    const selectedIds = Object.entries(selected)
+      .filter(([_, value]) => value.selected)
+      .map(([key, _]) => key);
+
+    console.log(selectedIds);
+    return selectedIds;
+  };
+
+  useEffect(() => {
+    setCellCords(convertSelectedCells(selectedCells));
+  }, [selectedCells]);
 
   useEffect(() => {
     setEnd([
@@ -101,7 +111,7 @@ const GridView: React.FC<GridProps> = ({ rowCount, colCount }) => {
 
   const handleMouseDown = (id: string, cellType: "start" | "end" | "") => {
     setIsDragging(true);
-    setDraggingCell({ id, type: cellType });
+    setDraggingCell({ id, type: cellType, selected: true });
     setDraggedCellType(cellType);
   };
 
@@ -204,6 +214,12 @@ const GridView: React.FC<GridProps> = ({ rowCount, colCount }) => {
         }}
       >
         {cells}
+      </div>
+      <div
+        onClick={() => pathFind(start, end, cellCords)}
+        className="mx-auto w-[30%] mt-1 py-2 rounded-md text-ceter  hover:bg-cyan-500 cursor-pointer bg-cyan-600 text-center  text-white"
+      >
+        Start
       </div>
     </>
   );

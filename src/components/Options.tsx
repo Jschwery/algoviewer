@@ -1,7 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import Dijkstra from "../algorithms/dijkstra";
 import { algorithmsList } from "../algorithms/util/algoList";
-import { Button, Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
+import {
+  Button,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuItemOption,
+  MenuList,
+  MenuOptionGroup,
+} from "@chakra-ui/react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 
 interface OptionsProps {
@@ -13,89 +21,124 @@ const Options: React.FC<OptionsProps> = ({ onCalculate, algoCallback }) => {
   const [dimension1, setDimension1] = useState("20");
   const [dimension2, setDimension2] = useState("20");
   const [algo, setAlgo] = useState("");
-  const [openDropdown, setOpenDropdown] = useState("");
+  const [speed, setSpeed] = useState("");
+  const [mazePattern, setMazePattern] = useState("");
 
   useEffect(() => {
     algoCallback(algo);
   }, [algo]);
 
-  const toggleDropdown = (dropdownId: string) => {
-    setOpenDropdown((prev) => (prev === dropdownId ? "" : dropdownId));
-  };
-
-  useEffect(() => {
-    console.log(openDropdown);
-  }, [openDropdown]);
-
   return (
     <div className="w-full h-full gap-2 flex-col sm:flex-row flex p-2 bg-slate-500">
-      <div className="bg-yellow-200 mx-auto flex md:w-[70%] justify-between p-6  rounded-sm">
+      <div className="bg-yellow-200 mx-auto flex w-full justify-between p-2  rounded-sm">
         <div className="flex flex-col space-y-1 items-start w-full">
           <div className="flex items-end gap-5">
-            <div className="bg-emerald-900 flex-col inline-flex sm:!flex-row space-y-2 sm:space-y-0 justify-between">
-              <div className="relative flex w-full  items-center justify-start">
-                <Menu>
-                  {({ isOpen }) => (
-                    <>
-                      <MenuButton
-                        isActive={isOpen}
-                        as={Button}
-                        rightIcon={<ChevronDownIcon />}
+            <div className="flex gap-2 w-[75%]">
+              <Menu>
+                {({ isOpen }) => (
+                  <>
+                    <MenuButton
+                      isActive={isOpen}
+                      as={Button}
+                      rightIcon={<ChevronDownIcon />}
+                    >
+                      {algo ? algo : "Algorithms"}
+                    </MenuButton>
+                    <MenuList>
+                      <MenuOptionGroup
+                        defaultValue="asc"
+                        title="Algorithms"
+                        type="radio"
                       >
-                        {isOpen ? "Close" : "Open"}
-                      </MenuButton>
-                      <MenuList>
-                        <MenuItem>Download</MenuItem>
-                        <MenuItem onClick={() => alert("Kagebunshin")}>
-                          Create a Copy
-                        </MenuItem>
-                      </MenuList>
-                    </>
-                  )}
-                </Menu>
-              </div>
-              <div className="relative flex w-full  items-center justify-start">
-                <Menu>
-                  {({ isOpen }) => (
-                    <>
-                      <MenuButton
-                        isActive={isOpen}
-                        as={Button}
-                        rightIcon={<ChevronDownIcon />}
+                        <MenuItemOption
+                          onClick={() => setAlgo("A*")}
+                          value="a*"
+                        >
+                          A*
+                        </MenuItemOption>
+                        <MenuItemOption
+                          onClick={() => setAlgo("Dijkstra")}
+                          value="dijkstra"
+                        >
+                          Dijkstra
+                        </MenuItemOption>
+                      </MenuOptionGroup>
+                    </MenuList>
+                  </>
+                )}
+              </Menu>
+              <Menu>
+                {({ isOpen }) => (
+                  <>
+                    <MenuButton
+                      isActive={isOpen}
+                      as={Button}
+                      rightIcon={<ChevronDownIcon />}
+                    >
+                      {mazePattern ? mazePattern : "Mazes & Patterns"}
+                    </MenuButton>
+                    <MenuList>
+                      <MenuOptionGroup
+                        defaultValue="asc"
+                        title="Maze & Patterns"
+                        type="radio"
                       >
-                        {isOpen ? "Close" : "Open"}
-                      </MenuButton>
-                      <MenuList>
-                        <MenuItem>Download</MenuItem>
-                        <MenuItem onClick={() => alert("Kagebunshin")}>
-                          Create a Copy
-                        </MenuItem>
-                      </MenuList>
-                    </>
-                  )}
-                </Menu>
-              </div>
-              <div className="relative flex w-full  items-center justify-start">
-                <Menu>
-                  {({ isOpen }) => (
-                    <>
-                      <MenuButton
-                        isActive={isOpen}
-                        as={Button}
-                        rightIcon={<ChevronDownIcon />}
+                        <MenuItemOption
+                          onClick={() => setMazePattern("Recursive Division")}
+                          value="recursiveDivision"
+                        >
+                          Recursive Division
+                        </MenuItemOption>
+                        <MenuItemOption
+                          onClick={() => setMazePattern("Random")}
+                          value="random"
+                        >
+                          Random
+                        </MenuItemOption>
+                      </MenuOptionGroup>
+                    </MenuList>
+                  </>
+                )}
+              </Menu>
+              <Menu>
+                {({ isOpen }) => (
+                  <>
+                    <MenuButton
+                      isActive={isOpen}
+                      as={Button}
+                      rightIcon={<ChevronDownIcon />}
+                    >
+                      {speed ? speed : "Speed"}
+                    </MenuButton>
+                    <MenuList>
+                      <MenuOptionGroup
+                        defaultValue="asc"
+                        title="Speed"
+                        type="radio"
                       >
-                        {isOpen ? "Close" : "Open"}
-                      </MenuButton>
-                      <MenuList>
-                        <MenuItem>Download</MenuItem>
-                        <MenuItem onClick={() => alert("Kagebunshin")}>
-                          Create a Copy
-                        </MenuItem>
-                      </MenuList>
-                    </>
-                  )}
-                </Menu>
-              </div>
+                        <MenuItemOption
+                          onClick={() => setSpeed("Slow")}
+                          value="slow"
+                        >
+                          Slow
+                        </MenuItemOption>
+                        <MenuItemOption
+                          onClick={() => setSpeed("Normal")}
+                          value="normal"
+                        >
+                          Normal
+                        </MenuItemOption>
+                        <MenuItemOption
+                          onClick={() => setSpeed("Fast")}
+                          value="fast"
+                        >
+                          Fast
+                        </MenuItemOption>
+                      </MenuOptionGroup>
+                    </MenuList>
+                  </>
+                )}
+              </Menu>
             </div>
 
             <div className="w-full z-10">
@@ -124,9 +167,6 @@ const Options: React.FC<OptionsProps> = ({ onCalculate, algoCallback }) => {
                 </button>
               </div>
             </div>
-          </div>
-          <div className="ml-auto w-[50%] p-1 my-2 rounded-md hover:bg-cyan-500 cursor-pointer bg-cyan-600 text-center  text-white">
-            Start
           </div>
         </div>
       </div>
