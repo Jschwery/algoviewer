@@ -24,11 +24,9 @@ function Container() {
     if (grid) {
       if (!dijkstraRef.current) {
         dijkstraRef.current = new Dijkstra(grid);
-      } else {
-        dijkstraRef.current.initializeGrid(grid);
       }
     }
-  }, [grid]);
+  }, []);
 
   useEffect(() => {
     let grid = Array.from({ length: rowCount }, () => Array(colCount).fill(1));
@@ -43,11 +41,16 @@ function Container() {
     setGrid([...grid]);
   }, [rowCount, colCount, walls]);
 
-  const pathFind = (
-    start: [number, number],
-    end: [number, number],
-    walls: string[]
-  ) => {};
+  const handleGridUpdate = (grid: number[][]) => {
+    console.log(grid);
+  };
+
+  const pathFind = (start: [number, number], end: [number, number]) => {
+    if (grid) {
+      dijkstraRef.current?.initializeGrid(grid);
+    }
+    dijkstraRef.current?.findPath(start, end, handleGridUpdate);
+  };
 
   const handleCalculate = (newRowCount: number, newColCount: number) => {
     setRowColCount([newRowCount, newColCount]);

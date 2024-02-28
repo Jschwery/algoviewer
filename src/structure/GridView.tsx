@@ -26,8 +26,22 @@ export const parseCoordinate = (coords: string) => {
   return [Number(parts[0]), Number(parts[1])];
 };
 
+/*
+handleGridUpdate from Container
+
+the grid returned will have 2s for searched blocks, 1 for open, infinity for wall
+i need to filter the cells that have 2, and then set those as string
+and put them to keys, so need callback with container
+
+then add searchedcell field to the gridcell component
+
+*/
+
 const GridView: React.FC<GridProps> = ({ rowCount, colCount, pathFind }) => {
   const [selectedCells, setSelectedCells] = useState<{
+    [key: string]: DraggingCellInfo;
+  }>({});
+  const [searchedCell, setSearchedCell] = useState<{
     [key: string]: DraggingCellInfo;
   }>({});
   const [isDragging, setIsDragging] = useState<boolean>(false);
@@ -35,7 +49,7 @@ const GridView: React.FC<GridProps> = ({ rowCount, colCount, pathFind }) => {
     null
   );
   const [draggedCellType, setDraggedCellType] = useState<
-    "start" | "end" | "wall" | ""
+    "start" | "end" | "wall" | "searched" | ""
   >("");
   const [start, setStart] = useState<[number, number]>([0, 0]);
   const [cellCords, setCellCords] = useState<string[]>([]);
@@ -91,23 +105,6 @@ const GridView: React.FC<GridProps> = ({ rowCount, colCount, pathFind }) => {
       }
     });
   };
-
-  // const traverseGrid = (id: string) => {
-  //   setSelectedCells((prev) => {
-  //     const cellCoords = parseCoordinate(id);
-
-  //     if (coordsEqual(cellCoords, start) || coordsEqual(cellCoords, end)) {
-  //       return prev;
-  //     }
-
-  //     const cellInfo = prev[id];
-  //     if (cellInfo) {
-  //       return { ...prev, [id]: { ...cellInfo, selected: !cellInfo.selected } };
-  //     } else {
-  //       return { ...prev, [id]: { id, type: "", selected: true } };
-  //     }
-  //   });
-  // };
 
   const handleMouseDown = (id: string, cellType: "start" | "end" | "") => {
     setIsDragging(true);

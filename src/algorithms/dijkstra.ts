@@ -7,10 +7,11 @@ class Dijkstra implements PathFindingAlgorithm {
   private distArray: number[][];
   private adjList!: CoordinateMap;
   private prev: { [key: string]: [number, number] | null };
-
+  private grid: number[][];
   constructor(grid: number[][]) {
     this.distArray = [];
     this.prev = {};
+    this.grid = grid;
     this.initializeGrid(grid);
   }
 
@@ -49,15 +50,20 @@ class Dijkstra implements PathFindingAlgorithm {
       let neighbors = this.adjList[`${currentX}-${currentY}`];
       for (const neighbor of neighbors) {
         let [nextX, nextY, distToNeighbor] = neighbor;
+
+        if (this.grid[nextX][nextY] === Infinity) {
+          continue;
+        }
         let newDist = currentDist + distToNeighbor;
 
         if (newDist < this.distArray[nextX][nextY]) {
           this.distArray[nextX][nextY] = newDist;
+          this.grid[nextX][nextY] = 2;
           this.prev[`${nextX}-${nextY}`] = [currentX, currentY];
           minHeap.insert({ coord: [nextX, nextY], distance: newDist });
 
           if (onProgress) {
-            onProgress([...this.distArray]);
+            onProgress([...this.grid]);
           }
         }
       }
