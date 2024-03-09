@@ -7,7 +7,7 @@ interface GridProps {
   pathFind: (
     start: [number, number],
     end: [number, number],
-    walls: string[]
+    walls: number[][]
   ) => void;
 }
 
@@ -15,6 +15,7 @@ export interface DraggingCellInfo {
   id: string;
   type: "start" | "end" | "wall" | "";
   selected: boolean;
+  hovered?: boolean;
 }
 
 export const parseCoordinate = (coords: string) => {
@@ -25,17 +26,6 @@ export const parseCoordinate = (coords: string) => {
   }
   return [Number(parts[0]), Number(parts[1])];
 };
-
-/*
-handleGridUpdate from Container
-
-the grid returned will have 2s for searched blocks, 1 for open, infinity for wall
-i need to filter the cells that have 2, and then set those as string
-and put them to keys, so need callback with container
-
-then add searchedcell field to the gridcell component
-
-*/
 
 const GridView: React.FC<GridProps> = ({ rowCount, colCount, pathFind }) => {
   const [selectedCells, setSelectedCells] = useState<{
@@ -65,7 +55,6 @@ const GridView: React.FC<GridProps> = ({ rowCount, colCount, pathFind }) => {
       .filter(([_, value]) => value.selected)
       .map(([key, _]) => key);
 
-    console.log(selectedIds);
     return selectedIds;
   };
 
@@ -106,6 +95,22 @@ const GridView: React.FC<GridProps> = ({ rowCount, colCount, pathFind }) => {
     });
   };
 
+  const handleWalls = () => {
+    let grid: number[][] = [];
+    for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+      let row = [];
+      for (let colIndex = 0; colIndex < colCount; colIndex++) {
+        if (selectedCells[`${rowIndex}-${colIndex}`]?.selected) {
+          row.push(2);
+        } else {
+          row.push(1);
+        }
+      }
+      grid.push(row);
+    }
+    return grid;
+  };
+
   const handleMouseDown = (id: string, cellType: "start" | "end" | "") => {
     setIsDragging(true);
     setDraggingCell({ id, type: cellType, selected: true });
@@ -128,50 +133,56 @@ const GridView: React.FC<GridProps> = ({ rowCount, colCount, pathFind }) => {
     setDraggedCellType("");
   };
 
+  const handleMouseLeave = (id: string) => {
+    setSelectedCells((prev) => {
+      const cellInfo = prev[id];
+      if (!cellInfo) return prev;
+
+      return {
+        ...prev,
+        [id]: { ...cellInfo, hovered: false },
+      };
+    });
+  };
+
   const handleMouseEnter = (id: string) => {
     const cellCoords = parseCoordinate(id);
 
     if (isDragging) {
-      if (!draggedCellType) {
-        setSelectedCells((prev) => {
-          const cellInfo = prev[id];
-
+      setSelectedCells((prev) => {
+        const cellInfo = prev[id] || { id, type: "", selected: false };
+        if (!draggedCellType) {
           if (coordsEqual(cellCoords, start) || coordsEqual(cellCoords, end)) {
             return prev;
           }
 
-          if (cellInfo) {
+          return {
+            ...prev,
+            [id]: {
+              ...cellInfo,
+              selected: !cellInfo.selected,
+              hovered: true,
+            },
+          };
+        } else {
+          if (draggedCellType === "start" || draggedCellType === "end") {
             return {
               ...prev,
-              [id]: { ...cellInfo, selected: !cellInfo.selected },
-            };
-          } else {
-            if (
-              coordsEqual(cellCoords, start) ||
-              coordsEqual(cellCoords, end)
-            ) {
-              return prev;
-            }
-            return {
-              ...prev,
-              [id]: { id, type: "", selected: true },
+              [id]: {
+                ...cellInfo,
+                hovered: true,
+              },
             };
           }
-        });
-      }
+        }
+
+        return prev;
+      });
     }
     if (draggedCellType === "start") {
       setStart(parseCoordinate(id) as [number, number]);
-      setSelectedCells((prev) => {
-        const cellInfo = prev[id];
-        return { ...prev, [id]: { ...cellInfo, selected: false } };
-      });
     } else if (draggedCellType === "end") {
       setEnd(parseCoordinate(id) as [number, number]);
-      setSelectedCells((prev) => {
-        const cellInfo = prev[id];
-        return { ...prev, [id]: { ...cellInfo, selected: false } };
-      });
     }
   };
 
@@ -186,10 +197,12 @@ const GridView: React.FC<GridProps> = ({ rowCount, colCount, pathFind }) => {
         <GridCell
           key={cellId}
           id={cellId}
-          selected={!!selectedCells[cellId]?.selected}
+          selected={!!selectedCells[cellId]?.selected && !isStart && !isEnd}
           start={isStart}
           end={isEnd}
+          hovered={!!selectedCells[cellId]?.hovered}
           onMouseEnter={() => handleMouseEnter(cellId)}
+          onMouseLeave={() => handleMouseLeave(cellId)}
           callBack={() => handleCellClick(cellId)}
           onMouseDown={() =>
             handleMouseDown(cellId, isStart ? "start" : isEnd ? "end" : "")
@@ -213,7 +226,7 @@ const GridView: React.FC<GridProps> = ({ rowCount, colCount, pathFind }) => {
         {cells}
       </div>
       <div
-        onClick={() => pathFind(start, end, cellCords)}
+        onClick={() => pathFind(start, end, handleWalls())}
         className="mx-auto w-[30%] mt-1 py-2 rounded-md text-ceter  hover:bg-cyan-500 cursor-pointer bg-cyan-600 text-center  text-white"
       >
         Start

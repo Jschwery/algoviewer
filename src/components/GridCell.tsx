@@ -6,8 +6,10 @@ interface GridCellProps {
   callBack: () => void;
   onMouseDown: () => void;
   onMouseEnter: () => void;
+  onMouseLeave: () => void;
   onMouseUp: () => void;
   start?: boolean;
+  hovered?: boolean;
   end?: boolean;
 }
 
@@ -15,7 +17,9 @@ const GridCell: React.FC<GridCellProps> = ({
   id,
   selected,
   callBack,
+  hovered,
   onMouseDown,
+  onMouseLeave,
   onMouseUp,
   onMouseEnter,
   start,
@@ -26,10 +30,11 @@ const GridCell: React.FC<GridCellProps> = ({
       onClick={callBack}
       onMouseDown={onMouseDown}
       onMouseUp={onMouseUp}
+      onMouseLeave={onMouseLeave}
       onMouseEnter={onMouseEnter}
-      className={`grid-cell ${selected ? "selected" : ""} ${
-        start ? "start" : ""
-      } ${end ? "end" : ""}`}
+      className={`grid-cell ${hovered ? "!bg-slate-300" : ""} ${
+        selected ? "selected" : ""
+      } ${start ? "start" : ""} ${end ? "end" : ""}`}
     >
       {start && (
         <div className="flex items-center justify-center">

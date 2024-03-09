@@ -5,14 +5,16 @@ import MinHeap from "./util/minHeap";
 
 class Dijkstra implements PathFindingAlgorithm {
   private distArray: number[][];
-  private adjList!: CoordinateMap;
   private prev: { [key: string]: [number, number] | null };
   private grid: number[][];
+  private adjList: CoordinateMap;
   constructor(grid: number[][]) {
-    this.distArray = [];
-    this.prev = {};
     this.grid = grid;
-    this.initializeGrid(grid);
+    this.adjList = CreateAdjList(grid);
+    this.distArray = Array.from({ length: grid.length }, () =>
+      Array(grid[0].length).fill(Infinity)
+    );
+    this.prev = {};
   }
 
   calculateDistance(a: [number, number], b: [number, number]): number {
@@ -26,6 +28,7 @@ class Dijkstra implements PathFindingAlgorithm {
     this.distArray = Array.from({ length: grid.length }, () =>
       Array(grid[0].length).fill(Infinity)
     );
+    this.adjList = CreateAdjList(grid);
     this.prev = {};
   }
 
@@ -48,9 +51,7 @@ class Dijkstra implements PathFindingAlgorithm {
       if (currentX === end[0] && currentY === end[1]) break;
 
       let neighbors = this.adjList[`${currentX}-${currentY}`];
-      for (const neighbor of neighbors) {
-        let [nextX, nextY, distToNeighbor] = neighbor;
-
+      for (const [nextX, nextY, distToNeighbor] of neighbors) {
         if (this.grid[nextX][nextY] === Infinity) {
           continue;
         }
@@ -58,17 +59,18 @@ class Dijkstra implements PathFindingAlgorithm {
 
         if (newDist < this.distArray[nextX][nextY]) {
           this.distArray[nextX][nextY] = newDist;
-          this.grid[nextX][nextY] = 2;
+          this.grid[nextX][nextY] = 3;
           this.prev[`${nextX}-${nextY}`] = [currentX, currentY];
           minHeap.insert({ coord: [nextX, nextY], distance: newDist });
 
           if (onProgress) {
-            onProgress([...this.grid]);
+            onProgress(this.grid.map((row) => [...row]));
           }
         }
       }
     }
 
+    console.log(this.grid);
     return this.reconstructPath(start, end);
   }
 

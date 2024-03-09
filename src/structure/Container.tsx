@@ -10,14 +10,13 @@ function Container() {
   const [walls, setWalls] = useState<{
     [key: string]: DraggingCellInfo;
   }>({});
-
   const [algoId, setAlgoId] = useState("");
-  const algoName = algorithmsList[Number(algoId) - 1]?.name ?? "";
   const [grid, setGrid] = useState<number[][]>();
+
   const dijkstraRef = useRef<Dijkstra | null>(null);
 
   useEffect(() => {
-    console.log("Selected Algorithm: " + algoName);
+    console.log("Selected Algorithm: " + algoId);
   }, [algoId]);
 
   useEffect(() => {
@@ -27,29 +26,50 @@ function Container() {
       }
     }
   }, []);
-
+  const handleGridUpdate = (grid: number[][]) => {
+    console.log("within handle grid update");
+    console.log(grid);
+    setGrid([...grid]);
+  };
   useEffect(() => {
-    let grid = Array.from({ length: rowCount }, () => Array(colCount).fill(1));
-
+    let newGrid = Array.from({ length: rowCount }, () =>
+      Array(colCount).fill(1)
+    );
     Object.keys(walls).forEach((wallKey) => {
       const [x, y] = wallKey.split("-").map(Number);
       if (x >= 0 && x < rowCount && y >= 0 && y < colCount) {
-        grid[x][y] = Infinity;
+        newGrid[x][y] = Infinity;
       }
     });
 
-    setGrid([...grid]);
+    setGrid(newGrid);
   }, [rowCount, colCount, walls]);
 
-  const handleGridUpdate = (grid: number[][]) => {
-    console.log(grid);
-  };
-
-  const pathFind = (start: [number, number], end: [number, number]) => {
+  useEffect(() => {
     if (grid) {
-      dijkstraRef.current?.initializeGrid(grid);
+      dijkstraRef.current = new Dijkstra(grid);
     }
-    dijkstraRef.current?.findPath(start, end, handleGridUpdate);
+  }, [grid]);
+
+  const pathFind = async (
+    start: [number, number],
+    end: [number, number],
+    walls: number[][]
+  ) => {
+    if (dijkstraRef.current) {
+      try {
+        const path = await dijkstraRef.current.findPath(
+          start,
+          end,
+          handleGridUpdate
+        );
+        console.log("Path found:", path);
+      } catch (error) {
+        console.error("Error finding path:", error);
+      }
+    } else {
+      console.log("Dijkstra instance is not ready.");
+    }
   };
 
   const handleCalculate = (newRowCount: number, newColCount: number) => {
