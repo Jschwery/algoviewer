@@ -27,8 +27,8 @@ function Container() {
     }
   }, []);
   const handleGridUpdate = (grid: number[][]) => {
-    console.log("within handle grid update");
-    console.log(grid);
+    // console.log("within handle grid update");
+    // console.log(grid);
     setGrid([...grid]);
   };
   useEffect(() => {
@@ -46,6 +46,7 @@ function Container() {
   }, [rowCount, colCount, walls]);
 
   useEffect(() => {
+    // console.log(grid);
     if (grid) {
       dijkstraRef.current = new Dijkstra(grid);
     }
@@ -85,7 +86,12 @@ function Container() {
         <Options onCalculate={handleCalculate} algoCallback={setAlgoId} />
       </div>
       <div className="w-full grow p-2 bg-slate-400">
-        <GridView rowCount={rowCount} colCount={colCount} pathFind={pathFind} />
+        <GridView
+          rowCount={rowCount}
+          colCount={colCount}
+          pathFind={pathFind}
+          setWalls={setWalls}
+        />
       </div>
     </div>
   );

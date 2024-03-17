@@ -70,7 +70,6 @@ class Dijkstra implements PathFindingAlgorithm {
       }
     }
 
-    console.log(this.grid);
     return this.reconstructPath(start, end);
   }
 

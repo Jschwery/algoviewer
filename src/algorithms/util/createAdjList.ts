@@ -8,6 +8,9 @@ export function CreateAdjList(graph: number[][]): {
   [key: string]: Coordinate[];
 } {
   const adjList: CoordinateMap = {};
+  console.log("graph");
+  console.log(graph);
+
   let directions = [
     [0, 1],
     [0, -1],
@@ -25,10 +28,12 @@ export function CreateAdjList(graph: number[][]): {
           j + direction[1] >= graph[0].length
         )
           continue;
+        if (graph[i][j] === 2) continue;
         adjList[`${i}-${j}`].push([i + direction[0], j + direction[1], 1]);
       }
     }
   }
+
   return adjList;
 }
 

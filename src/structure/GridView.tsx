@@ -9,6 +9,7 @@ interface GridProps {
     end: [number, number],
     walls: number[][]
   ) => void;
+  setWalls: (walls: { [key: string]: DraggingCellInfo }) => void;
 }
 
 export interface DraggingCellInfo {
@@ -17,6 +18,10 @@ export interface DraggingCellInfo {
   selected: boolean;
   hovered?: boolean;
 }
+
+type SelectedCells = {
+  [key: string]: DraggingCellInfo;
+};
 
 export const parseCoordinate = (coords: string) => {
   const parts = coords.split("-");
@@ -27,10 +32,13 @@ export const parseCoordinate = (coords: string) => {
   return [Number(parts[0]), Number(parts[1])];
 };
 
-const GridView: React.FC<GridProps> = ({ rowCount, colCount, pathFind }) => {
-  const [selectedCells, setSelectedCells] = useState<{
-    [key: string]: DraggingCellInfo;
-  }>({});
+const GridView: React.FC<GridProps> = ({
+  rowCount,
+  colCount,
+  pathFind,
+  setWalls,
+}) => {
+  const [selectedCells, setSelectedCells] = useState<SelectedCells>({});
   const [searchedCell, setSearchedCell] = useState<{
     [key: string]: DraggingCellInfo;
   }>({});
@@ -47,6 +55,11 @@ const GridView: React.FC<GridProps> = ({ rowCount, colCount, pathFind }) => {
     rowCount / 2 - 1,
     colCount / 2 - 1,
   ]);
+
+  useEffect(() => {
+    setWalls({ ...selectedCells });
+    // console.log(selectedCells);
+  }, [selectedCells]);
 
   const convertSelectedCells = (selected: {
     [key: string]: DraggingCellInfo;
@@ -81,14 +94,20 @@ const GridView: React.FC<GridProps> = ({ rowCount, colCount, pathFind }) => {
       const cellInfo = prev[id];
 
       if (cellInfo) {
-        return {
-          ...prev,
-          [id]: {
-            ...cellInfo,
-            selected: !cellInfo.selected,
-            type: !!cellInfo.selected ? "wall" : "",
-          },
-        };
+        if (cellInfo.selected) {
+          const newCells = { ...prev };
+          delete newCells[id];
+          return newCells;
+        } else {
+          return {
+            ...prev,
+            [id]: {
+              ...cellInfo,
+              selected: true,
+              type: "wall",
+            },
+          };
+        }
       } else {
         return { ...prev, [id]: { id, type: "wall", selected: true } };
       }
@@ -120,17 +139,31 @@ const GridView: React.FC<GridProps> = ({ rowCount, colCount, pathFind }) => {
   const handleMouseUp = (id: string, type?: "start" | "end") => {
     if (!isDragging || !draggingCell) return;
 
-    if (type === "start") {
-      setStart(parseCoordinate(id) as [number, number]);
-    }
+    const cellCoords = parseCoordinate(id);
 
-    if (type === "end") {
-      setEnd(parseCoordinate(id) as [number, number]);
+    if (type === "start") {
+      setStart(cellCoords as [number, number]);
+    } else if (type === "end") {
+      setEnd(cellCoords as [number, number]);
     }
 
     setIsDragging(false);
     setDraggingCell(null);
     setDraggedCellType("");
+
+    setSelectedCells((currentCells) => {
+      const filteredCells = Object.entries(currentCells).reduce<SelectedCells>(
+        (acc, [key, value]) => {
+          if (value.selected) {
+            acc[key] = value;
+          }
+          return acc;
+        },
+        {} as SelectedCells
+      );
+
+      return filteredCells;
+    });
   };
 
   const handleMouseLeave = (id: string) => {
@@ -147,23 +180,32 @@ const GridView: React.FC<GridProps> = ({ rowCount, colCount, pathFind }) => {
 
   const handleMouseEnter = (id: string) => {
     const cellCoords = parseCoordinate(id);
-
+    if (draggedCellType === "start") {
+      setStart(parseCoordinate(id) as [number, number]);
+    } else if (draggedCellType === "end") {
+      setEnd(parseCoordinate(id) as [number, number]);
+    }
     if (isDragging) {
       setSelectedCells((prev) => {
         const cellInfo = prev[id] || { id, type: "", selected: false };
+        if (coordsEqual(cellCoords, start) || coordsEqual(cellCoords, end)) {
+          return prev;
+        }
         if (!draggedCellType) {
-          if (coordsEqual(cellCoords, start) || coordsEqual(cellCoords, end)) {
-            return prev;
+          if (cellInfo.selected) {
+            const newCells = { ...prev };
+            delete newCells[id];
+            return newCells;
+          } else {
+            return {
+              ...prev,
+              [id]: {
+                ...cellInfo,
+                selected: true,
+                hovered: true,
+              },
+            };
           }
-
-          return {
-            ...prev,
-            [id]: {
-              ...cellInfo,
-              selected: !cellInfo.selected,
-              hovered: true,
-            },
-          };
         } else {
           if (draggedCellType === "start" || draggedCellType === "end") {
             return {
@@ -178,11 +220,6 @@ const GridView: React.FC<GridProps> = ({ rowCount, colCount, pathFind }) => {
 
         return prev;
       });
-    }
-    if (draggedCellType === "start") {
-      setStart(parseCoordinate(id) as [number, number]);
-    } else if (draggedCellType === "end") {
-      setEnd(parseCoordinate(id) as [number, number]);
     }
   };
 
@@ -227,12 +264,11 @@ const GridView: React.FC<GridProps> = ({ rowCount, colCount, pathFind }) => {
       </div>
       <div
         onClick={() => pathFind(start, end, handleWalls())}
-        className="mx-auto w-[30%] mt-1 py-2 rounded-md text-ceter  hover:bg-cyan-500 cursor-pointer bg-cyan-600 text-center  text-white"
+        className="mx-auto w-[30%] mt-1 py-2 rounded-md text-center hover:bg-cyan-500 cursor-pointer bg-cyan-600 text-white"
       >
         Start
       </div>
     </>
   );
 };
-
 export default GridView;
